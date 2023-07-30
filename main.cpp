@@ -4,7 +4,7 @@
 #include <numeric>
 #include <opencv2/imgproc.hpp>
 #include <opencv2/highgui.hpp>
-//#include <cuda_provider_factory.h>  ///nvidia-cuda¼ÓËÙ
+//#include <cuda_provider_factory.h>  ///nvidia-cudaåŠ é€Ÿ
 #include <onnxruntime_cxx_api.h>
 
 using namespace cv;
@@ -34,8 +34,8 @@ private:
 	vector<string> class_names;
 	const int max_size = 800;
 
-	//´æ´¢³õÊ¼»¯»ñµÃµÄ¿ÉÖ´ĞĞÍøÂç
-	Env env = Env(ORT_LOGGING_LEVEL_ERROR, "Head Pose Estimation");
+	//å­˜å‚¨åˆå§‹åŒ–è·å¾—çš„å¯æ‰§è¡Œç½‘ç»œ
+	Env env = Env(ORT_LOGGING_LEVEL_ERROR, "Detic");
 	Ort::Session *ort_session = nullptr;
 	SessionOptions sessionOptions = SessionOptions();
 	vector<char*> input_names;
@@ -46,11 +46,11 @@ private:
 
 Detic::Detic(string model_path)
 {
-	//OrtStatus* status = OrtSessionOptionsAppendExecutionProvider_CUDA(sessionOptions, 0);  ///nvidia-cuda¼ÓËÙ
+	//OrtStatus* status = OrtSessionOptionsAppendExecutionProvider_CUDA(sessionOptions, 0);  ///nvidia-cudaåŠ é€Ÿ
 	sessionOptions.SetGraphOptimizationLevel(ORT_ENABLE_BASIC);
-	std::wstring widestr = std::wstring(model_path.begin(), model_path.end());   ///Èç¹ûÔÚwindowsÏµÍ³¾ÍÕâÃ´Ğ´
-	ort_session = new Session(env, widestr.c_str(), sessionOptions);   ///Èç¹ûÔÚwindowsÏµÍ³¾ÍÕâÃ´Ğ´
-	///ort_session = new Session(env, model_path.c_str(), sessionOptions);  ///Èç¹ûÔÚlinuxÏµÍ³£¬¾ÍÕâÃ´Ğ´
+	std::wstring widestr = std::wstring(model_path.begin(), model_path.end());   ///å¦‚æœåœ¨windowsç³»ç»Ÿå°±è¿™ä¹ˆå†™
+	ort_session = new Session(env, widestr.c_str(), sessionOptions);   ///å¦‚æœåœ¨windowsç³»ç»Ÿå°±è¿™ä¹ˆå†™
+	///ort_session = new Session(env, model_path.c_str(), sessionOptions);  ///å¦‚æœåœ¨linuxç³»ç»Ÿï¼Œå°±è¿™ä¹ˆå†™
 
 	size_t numInputNodes = ort_session->GetInputCount();
 	size_t numOutputNodes = ort_session->GetOutputCount();
@@ -76,7 +76,7 @@ Detic::Detic(string model_path)
 	string line;
 	while (getline(ifs, line))
 	{
-		this->class_names.push_back(line);  ///Äã¿ÉÒÔÓÃËæ»úÊı¸øÃ¿¸öÀà±ğ·ÖÅäRGBÖµ
+		this->class_names.push_back(line);  ///ä½ å¯ä»¥ç”¨éšæœºæ•°ç»™æ¯ä¸ªç±»åˆ«åˆ†é…RGBå€¼
 	}
 }
 
@@ -136,7 +136,7 @@ vector<BoxInfo> Detic::detect(Mat srcimg)
 	auto allocator_info = MemoryInfo::CreateCpu(OrtDeviceAllocator, OrtMemTypeCPU);
 	Value input_tensor_ = Value::CreateTensor<float>(allocator_info, input_image_.data(), input_image_.size(), input_shape_.data(), input_shape_.size());
 
-	// ¿ªÊ¼ÍÆÀí
+	// å¼€å§‹æ¨ç†
 	vector<Value> ort_outputs = ort_session->Run(RunOptions{ nullptr }, &input_names[0], &input_tensor_, 1, output_names.data(), output_names.size());
 
 	const float *pred_boxes = ort_outputs[0].GetTensorMutableData<float>();
