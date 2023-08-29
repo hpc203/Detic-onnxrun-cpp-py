@@ -50,6 +50,9 @@ class Detic():
         heights = pred_boxes[:, 3] - pred_boxes[:, 1]
         keep = (widths > threshold) & (heights > threshold)
 
+        condation = np.where(scores > self.confThreshold, True, False)
+        keep &= condation
+        
         pred_boxes = pred_boxes[keep]
         scores = scores[keep]
         pred_classes = pred_classes[keep]
